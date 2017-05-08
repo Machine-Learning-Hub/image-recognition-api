@@ -4,3 +4,6 @@ flask
 # tensorflow
 tensorflow
 numpy
+
+python-pip 
+python-dev
