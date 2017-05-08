@@ -1,0 +1,6 @@
+# flask
+flask
+
+# tensorflow
+tensorflow
+numpy scipy matplotlib ipython jupyter pandas sympy nose
