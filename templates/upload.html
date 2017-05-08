@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Image Recognition</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<style type="text/css" media="screen">
+		.btn-file {
+    position: relative;
+    overflow: hidden;
+	}
+	.btn-file input[type=file] {
+	    position: absolute;
+	    top: 0;
+	    right: 0;
+	    min-width: 100%;
+	    min-height: 100%;
+	    font-size: 100px;
+	    text-align: right;
+	    filter: alpha(opacity=0);
+	    opacity: 0;
+	    outline: none;
+	    background: white;
+	    cursor: inherit;
+	    display: block;
+	}
+
+	#img-upload{
+	    width: 100%;
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="jumbotron">
+	    	<h1>Upload your image for training.</h1>
+	    	<p>Please upload the zip file contain images.</p>
+	  	</div>
+        <form enctype="multipart/form-data">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-btn" id="input-group">
+                                <span class="btn btn-default btn-file">
+
+                                    Browse… <input type="file" id="zip_file" name="zip_file" accept="application/zip">
+
+                                </span>
+                            </span>
+                            <input type="text" class="form-control" readonly id="zip_file_name">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <input type="text" name="training_name" class="form-control" id="training_name" placeholder="Training Name (eg: rose)" required>
+                </div>
+                <div class="col-md-1">
+                    <input id="upload-btn" type="button" class="btn btn-default" value="Upload">
+                </div>
+            </div>
+        </form>
+        <div class="col-md-12">
+           <div class="progress">
+              <div class="progress-bar progress-bar-striped active" role="progressbar"
+              aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+                Training in progress...
+              </div>
+            </div>
+        </div>
+
+	  	<div class="col-md-12">
+	  		<p>Result:</p>
+	  		<textarea id="result" style="width: 100%; height: 100px" readonly>
+
+	  		</textarea>
+	  	</div>
+	</div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> -->
+<script type="text/javascript" charset="utf-8" async defer>
+	$(document).ready( function() {
+
+	    // Hide Progress
+        $('.progress').hide();
+
+    	$(document).on('change', '.btn-file :file', function() {
+		var input = $(this),
+			label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+		input.trigger('fileselect', [label]);
+		});
+
+		$('.btn-file :file').on('fileselect', function(event, label) {
+
+		    var input = $(this).parents('.input-group').find(':text'),
+		        log = label;
+
+		    if( input.length ) {
+		        input.val(log);
+		    } else {
+		        if( log ) alert(log);
+		    }
+
+		});
+
+		$('#upload-btn').on('click', function() {
+
+		    // validation
+
+            if ($('#zip_file_name').val() == ''){
+                alert("You must select zip file first.")
+                return
+            }
+
+            if ($('#training_name').val() == ''){
+                alert("You must enter training name.")
+                return
+            }
+
+
+            $('.progress').show();
+            $(this).prop('disabled', true);
+            $('#input-group').prop('disabled', true);
+
+			var form = new FormData($('form')[0])
+
+		    $.ajax({
+		        url: '/upload/zip',
+		        type: 'POST',
+		        data: form,
+		        async: true,
+		        success: function (data) {
+		            $('#result').text(data);
+		            $('.progress').hide();
+		            $('#upload-btn').prop('disabled', false);
+                    $('#input-group').prop('disabled', false);
+		        },
+		        cache: false,
+		        contentType: false,
+		        processData: false
+		    });
+		});
+	});
+</script>
+</html>
